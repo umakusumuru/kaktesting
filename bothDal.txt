@@ -1,0 +1,188 @@
+ [WebMethod]
+    public static List<BothsideInterest> Getbothsideinterst_NewSrtucture(SearchML input)
+    {
+
+        SearchBal bobj = new SearchBal();
+        List<BothsideInterest> li = new List<BothsideInterest>();
+        li = bobj.getbothinterstBal_NewSrtucture(input);
+
+        for (int i = 0; i < li.Count; i++)
+        {
+            //li[i].Photo = Masterdropdownbind.getProfilepic(!string.IsNullOrEmpty(li[i].fromcust_id.ToString()) ? li[i].fromcust_id.ToString() : "0");
+            //li[i].Photonew = Masterdropdownbind.getProfilepic(!string.IsNullOrEmpty(li[i].tocustid.ToString()) ? li[i].tocustid.ToString() : "0");
+
+            li[i].Photo = !string.IsNullOrEmpty(li[i].fromcust_id.ToString()) ? Masterdropdownbind.getProfilepicwithoutaccess(li[i].fromcust_id.ToString()) : Noimagepath;
+
+            li[i].Photonew = !string.IsNullOrEmpty(li[i].tocustid.ToString()) ? Masterdropdownbind.getProfilepicwithoutaccess(li[i].tocustid.ToString()) : Noimagepath;
+        }
+        return li;
+
+    }
+---------------------bal-----
+
+public List<BothsideInterest> getbothinterstBal_NewSrtucture(SearchML Mobj)
+        {
+            SearchDal bobj = new SearchDal();
+            List<BothsideInterest> li = bobj.getbothinterstDal_NewSrtucture(Mobj);
+            return li;
+        }
+
+------------------------dal------------------
+
+public List<BothsideInterest> getbothinterstDal_NewSrtucture(SearchML Mobj)
+        {
+            SqlParameter[] parm = new SqlParameter[15];
+            SqlDataReader reader;
+            List<BothsideInterest> li = new List<BothsideInterest>();
+            MasterDataClass mdc = new MasterDataClass();
+            DataTable dt = new DataTable();
+            parm[0] = new SqlParameter("@Empid", SqlDbType.VarChar, 20);
+            parm[0].Value = Mobj.empid;
+            parm[1] = new SqlParameter("@pagefrom", SqlDbType.Int);
+            parm[1].Value = Mobj.pagefrom;
+            parm[2] = new SqlParameter("@pageto", SqlDbType.Int);
+            parm[2].Value = Mobj.pageto;
+            parm[3] = new SqlParameter("@d_proceedFromdate", SqlDbType.DateTime);
+            parm[3].Value = Mobj.Fromdate;
+            parm[4] = new SqlParameter("@d_proceedTodate", SqlDbType.DateTime);
+            parm[4].Value = Mobj.Todate;
+            parm[5] = new SqlParameter("@owner", SqlDbType.Structured);
+            parm[5].Value = mdc.returndt(Mobj.stremp, dt, "owner", "owner");
+            parm[6] = new SqlParameter("@Branch", SqlDbType.Structured);
+            parm[6].Value = mdc.returndt(Mobj.strBranch, dt, "branch", "branch");
+            parm[7] = new SqlParameter("@isoneside", SqlDbType.Int);
+            parm[7].Value = (Mobj.CustID != null && Mobj.CustID != 0) || (Mobj.oppclose == true) ? 1 : Mobj.Spflag;
+            parm[8] = new SqlParameter("@cust_id", SqlDbType.Int);
+            parm[8].Value = Mobj.CustID;
+            parm[9] = new SqlParameter("@Region", SqlDbType.Structured);
+            parm[9].Value = mdc.returndt(Mobj.region, dt, "region", "region");
+            parm[10] = new SqlParameter("@ViewedPhoneNumbers", SqlDbType.Int);
+            parm[10].Value = Mobj.Viewedcontacts;
+            parm[11] = new SqlParameter("@oppclose", SqlDbType.Bit);
+            parm[11].Value = Mobj.oppclose;
+            try
+            {
+                Mobj.SPname = "Usp_Select_BothSideOneSideInterst_New";
+
+                reader = SQLHelper.ExecuteReader(SQLHelper.GetSQLConnection(), CommandType.StoredProcedure, Mobj.SPname, parm);
+                int count = reader.FieldCount;
+
+                string empty = "--";
+                DateTime? dnull = null;
+                int? intnull = null;
+                long? Lnull = null;
+                double? dbnull = null;
+                int intnullVal = 0;
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        BothsideInterest Binterest = new BothsideInterest();
+                        {
+                            Binterest.fromcust_id = (reader["FromCust_ID"]) != DBNull.Value ? reader.GetInt64(reader.GetOrdinal("FromCust_ID")) : Lnull;
+                            Binterest.tocustid = (reader["ToCust_ID"]) != DBNull.Value ? reader.GetInt64(reader.GetOrdinal("ToCust_ID")) : Lnull;
+                            Binterest.PhotoCount = (reader["PhotoCount"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("PhotoCount")) : intnullVal;
+                            Binterest.PhotoCountnew = (reader["PhotoCountnew"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("PhotoCountnew")) : intnullVal;
+                            Binterest.fromemp = (reader["fromemp"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("fromemp")) : empty;
+                            Binterest.toemp = (reader["toemp"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("toemp")) : empty;
+                            Binterest.FromProfileid = (reader["FromProfileid"]) != DBNull.Value ? (reader.GetInt64(reader.GetOrdinal("FromProfileid"))).ToString() : empty;
+                            Binterest.Toprofileid = (reader["Toprofileid"]) != DBNull.Value ? (reader.GetInt64(reader.GetOrdinal("Toprofileid"))).ToString() : empty;
+                            Binterest.FromName = (reader["FromName"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromName")) : empty;
+                            Binterest.ToName = (reader["ToName"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToName")) : empty;
+                            Binterest.fromticketid = (reader["fromticketid"]) != DBNull.Value ? (reader.GetString(reader.GetOrdinal("fromticketid"))).ToString() : empty;
+                            Binterest.Toticketid = (reader["Toticketid"]) != DBNull.Value ? (reader.GetString(reader.GetOrdinal("Toticketid"))).ToString() : empty;
+
+                            Binterest.fromempname = (reader["fromempname"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("fromempname")) : empty;
+                            Binterest.toempname = (reader["toempname"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("toempname")) : empty;
+
+                            Binterest.TotalRows = (reader["TotalRows"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("TotalRows")) : intnullVal;
+                            Binterest.TotalPages = (reader["TotalPages"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("TotalPages")) : intnullVal;
+                            //Binterest.CurrentPage = (reader["CurrentPage"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("CurrentPage")) : intnullVal;
+                            Binterest.FromTicketMatchmeetingStatus = (reader["FromTicketMatchmeetingStatus"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketMatchmeetingStatus")) : empty;
+
+                            Binterest.FromTicket = (reader["FromTicket"]) != DBNull.Value ? reader.GetInt64(reader.GetOrdinal("FromTicket")) : Lnull;
+                            Binterest.FromTicketAssignedEmpID = (reader["FromTicketAssignedEmpID"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketAssignedEmpID")) : empty;
+                            Binterest.FromTicketCreated = (reader["FromTicketCreated"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketCreated")).ToString() : empty;
+                            Binterest.ToTicket = (reader["ToTicket"]) != DBNull.Value ? reader.GetInt64(reader.GetOrdinal("ToTicket")) : Lnull;
+                            Binterest.ToTicketAssignedEmpID = (reader["ToTicketAssignedEmpID"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketAssignedEmpID")) : empty;
+                            Binterest.ToTicketCreated = (reader["ToTicketCreated"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketCreated")).ToString() : empty;
+                            Binterest.ToTicketMatchmeetingStatus = (reader["ToTicketMatchmeetingStatus"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketMatchmeetingStatus")) : empty;
+                            Binterest.FromTicketHisoryType = (reader["FromTicketHisoryType"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketHisoryType")) : empty;
+                            Binterest.FromTicketHisoryDatenew = (reader["FromTicketHisoryDatenew"]) != DBNull.Value ? (reader.GetString(reader.GetOrdinal("FromTicketHisoryDatenew"))).ToString() : empty;
+                            Binterest.FromTicketHisoryNAME = (reader["FromTicketHisoryNAME"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketHisoryNAME")) : empty;
+                            Binterest.FromTicketHisoryReplyDesc = (reader["FromTicketHisoryReplyDesc"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketHisoryReplyDesc")) : empty;
+                            Binterest.FromTicketHisoryCallStatus = (reader["FromTicketHisoryCallStatus"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketHisoryCallStatus")) : empty;
+                            Binterest.FromTicketHisoryCallReceivedBy = (reader["FromTicketHisoryCallReceivedBy"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketHisoryCallReceivedBy")) : empty;
+                            Binterest.ToTicketHisoryType = (reader["ToTicketHisoryType"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketHisoryType")) : empty; ;
+                            Binterest.ToTicketHisoryDatenew = (reader["ToTicketHisoryDatenew"]) != DBNull.Value ? (reader.GetString(reader.GetOrdinal("ToTicketHisoryDatenew"))).ToString() : empty;
+                            Binterest.ToTicketHisoryNAME = (reader["ToTicketHisoryNAME"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketHisoryNAME")) : empty;
+                            Binterest.ToTicketHisoryReplyDesc = (reader["ToTicketHisoryReplyDesc"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketHisoryReplyDesc")) : empty;
+                            Binterest.ToTicketHisoryCallStatus = (reader["ToTicketHisoryCallStatus"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketHisoryCallStatus")) : empty;
+                            Binterest.ToTicketHisoryCallReceivedBy = (reader["ToTicketHisoryCallReceivedBy"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketHisoryCallReceivedBy")) : empty;
+
+
+                            //Binterest.fromMatchFollowUpStatus = (reader["fromMatchFollowUpStatus"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("fromMatchFollowUpStatus")) : intnull;
+                            //Binterest.toMatchFollowUpStatus = (reader["toMatchFollowUpStatus"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("toMatchFollowUpStatus")) : intnull;
+
+                            //Binterest.Viewedcustid = (reader["Viewedcustid"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("Viewedcustid")) : empty;
+                            //Binterest.Fromtickethistory = (reader["Fromtickethistory"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("Fromtickethistory")) : empty;
+                            //Binterest.totickethistory = (reader["totickethistory"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("totickethistory")) : empty;
+                            //Binterest.ToTicketStatus = (reader["ToTicketStatus"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketStatus")) : empty;
+                            //Binterest.ToTicketOpenedOn = (reader["ToTicketOpenedOn"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketOpenedOn")) : empty;
+                            //Binterest.ToTicketCategory = (reader["ToTicketCategory"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketCategory")) : empty;
+
+                            //Binterest.ToTicketPendingWith = (reader["ToTicketPendingWith"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketPendingWith")) : empty;
+                            //Binterest.ToTicketSubject = (reader["ToTicketSubject"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketSubject")) : empty;
+                  //Binterest.ToticketStatusID = (reader["ToticketStatusID"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("ToticketStatusID")) : intnull;
+
+                            //Binterest.FromTicketStatus = (reader["FromTicketStatus"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketStatus")) : empty;
+                            //Binterest.FromTicketOpenedOn = (reader["FromTicketOpenedOn"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketOpenedOn")) : empty;
+                            //Binterest.FromTicketCategory = (reader["FromTicketCategory"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketCategory")) : empty;
+                            //Binterest.FromTicketPendingWith = (reader["FromTicketPendingWith"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketPendingWith")) : empty;
+                            //Binterest.FromTicketSubject = (reader["FromTicketSubject"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketSubject")) : empty;
+                  // Binterest.FromticketStatusID = (reader["FromticketStatusID"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("FromticketStatusID")) : intnull;
+                            //Binterest.FromTicketHisoryCallDiscussion = (reader["FromTicketHisoryCallDiscussion"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketHisoryCallDiscussion")) : empty;
+                            //Binterest.FromTicketHisoryCreatedBy = (reader["FromTicketHisoryCreatedBy"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketHisoryCreatedBy")) : empty;
+                            //Binterest.ToTicketHisoryCallDiscussion = (reader["ToTicketHisoryCallDiscussion"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketHisoryCallDiscussion")) : empty;
+                            //Binterest.ToTicketHisoryCreatedBy = (reader["ToTicketHisoryCreatedBy"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketHisoryCreatedBy")) : empty;
+                            //Binterest.ServiceDate = (reader["ServiceDate"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ServiceDate")).ToString() : empty;
+                            //Binterest.ToTicketHisoryRelationShip = (reader["ToTicketHisoryRelationShip"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketHisoryRelationShip")) : empty;
+                            //Binterest.FromTicketHisoryRelationShip = (reader["FromTicketHisoryRelationShip"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketHisoryRelationShip")) : empty;
+                            //Binterest.FromTicketNoofdays = (reader["FromTicketNoofdays"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketNoofdays")).ToString() : empty;
+                            //Binterest.ToTicketNoofdays = (reader["ToTicketNoofdays"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketNoofdays")).ToString() : empty;
+
+                            //Binterest.FromTicketMatchMeetingReason = (reader["FromTicketMatchMeetingReason"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromTicketMatchMeetingReason")) : empty;
+                            //Binterest.ToTicketMatchMeetingReason = (reader["ToTicketMatchMeetingReason"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToTicketMatchMeetingReason")) : empty;
+
+
+                            Binterest.FromExpressCount = (reader["FromExpressCount"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("FromExpressCount")) : intnull;
+
+                            Binterest.ToExpressCount = (reader["ToExpressCount"]) != DBNull.Value ? reader.GetInt32(reader.GetOrdinal("ToExpressCount")) : intnull;
+                            Binterest.FromBranchCode = (reader["FromBranchCode"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromBranchCode")) : empty;
+                            Binterest.ToBranchCode = (reader["ToBranchCode"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToBranchCode")) : empty;
+                            //Binterest.FromMobileCountryCode = (reader["FromMobileCountryCode"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromMobileCountryCode")) : empty;
+                            Binterest.FromMobileNumber = (reader["FromMobileNumber"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromMobileNumber")) : empty;
+                            //Binterest.ToMobileCountryCode = (reader["ToMobileCountryCode"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToMobileCountryCode")) : empty;
+                            Binterest.ToMobileNumber = (reader["ToMobileNumber"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToMobileNumber")) : empty;
+                            Binterest.FromEmail = (reader["FromEmail"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromEmail")) : empty;
+                            Binterest.TOEmail = (reader["ToEmail"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToEmail")) : empty;
+
+                            Binterest.FromSaPath = (reader["FromSaPath"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("FromSaPath")) : string.Empty;
+                            Binterest.ToSaPath = (reader["ToSaPath"]) != DBNull.Value ? reader.GetString(reader.GetOrdinal("ToSaPath")) : string.Empty;
+
+                        }
+                        li.Add(Binterest);
+
+                    }
+
+                }
+
+                reader.Close();
+
+            }
+            catch (Exception EX)
+            {
+                throw EX;
+            }
+            return li;
+        }
